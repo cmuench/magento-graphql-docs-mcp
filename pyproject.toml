@@ -1,0 +1,28 @@
+[project]
+name = "magento-graphql-docs-mcp"
+authors = [
+    { name = "MCP Developer", email = "dev@example.com" }
+]
+version = "0.1.0"
+description = "MCP server for searching Magento 2 GraphQL API documentation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp",
+    "sqlite-utils",
+    "pydantic>=2.0",
+    "python-frontmatter",
+    "markdown-it-py",
+]
+
+[project.scripts]
+magento-graphql-docs-mcp = "magento_graphql_docs_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mcp>=1.16.0",
+]
