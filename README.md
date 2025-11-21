@@ -92,6 +92,74 @@ cd magento-graphql-docs-mcp
 pip install -e .
 ```
 
+### (Optional) Build and Run with Docker
+
+If you prefer Docker, build the image and mount your docs path to `/data` (or set `MAGENTO_GRAPHQL_DOCS_PATH` to another location):
+
+```bash
+docker build -t magento-graphql-docs-mcp -f docker/Dockerfile .
+docker run --rm -it \
+  -v /absolute/path/to/commerce-webapi/src/pages/graphql:/data \
+  magento-graphql-docs-mcp
+```
+
+Auto-fetch fallback: if you do not mount docs, the container can clone them on start. Control this with `MAGENTO_GRAPHQL_DOCS_AUTO_FETCH` (default: `true`):
+
+```bash
+# Let the container clone docs (uses /tmp/commerce-webapi/src/pages/graphql)
+docker run --rm -it magento-graphql-docs-mcp
+
+# Disable auto-fetch; require a mount or preset MAGENTO_GRAPHQL_DOCS_PATH
+docker run --rm -it \
+  -e MAGENTO_GRAPHQL_DOCS_AUTO_FETCH=false \
+  -v /absolute/path/to/commerce-webapi/src/pages/graphql:/data \
+  magento-graphql-docs-mcp
+```
+
+### Host-Side Docker Wrapper (STDIO)
+
+Use the provided wrapper to run the container and forward STDIN/STDOUT for MCP clients (no TTY added):
+
+```bash
+# From repo root
+./run-docker-mcp.sh
+```
+
+What it does:
+- Builds the `magento-graphql-docs-mcp` image automatically if it is missing
+- Mounts `MAGENTO_GRAPHQL_DOCS_PATH` (or `./data`) to `/data` if it exists; otherwise relies on auto-fetch
+- Keeps STDIO clean for MCP clients; prints connection instructions on start
+- Respects `MAGENTO_GRAPHQL_DOCS_AUTO_FETCH` (set to `false` to require a mounted path)
+
+Point your MCP client command to the wrapper path. Example Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "magento-graphql-docs": {
+      "command": "/absolute/path/to/run-docker-mcp.sh"
+    }
+  }
+}
+```
+
+### VS Code MCP Configuration
+
+Example VS Code MCP config using the Docker wrapper:
+
+```json
+{
+  "servers": {
+    "magento-webapi-docs": {
+      "type": "stdio",
+      "command": "/absolute/path/to/run-docker-mcp.sh"
+    }
+  }
+}
+```
+
+After adding the server entry, open the VS Code MCP/Tools panel and press “Start” for `magento-webapi-docs` to launch the container-backed STDIO server.
+
 ### Step 5: Run and Verify
 
 ```bash
